@@ -178,7 +178,7 @@ def main():
 import argparse
 import time
 
-def test_estimator():
+def cmd_mode():
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True, help='input image')
     parser.add_argument('--output', type=str, default='result.png', help='output image')
@@ -193,31 +193,34 @@ def test_estimator():
     # generate image with body parts
     if os.path.isdir(args.image):
         for file in os.listdir(args.image):
-            fpath,fname = os.path.split(os.path.abspath(file))
+            fullpath = os.path.join(os.path.abspath(args.image),file)
+            fpath,fname = os.path.split(fullpath)
             name,ext = os.path.splitext(fname)
-            if not os.path.isfile(file) or ext not in image_exts:
+            print(fullpath)
+            if not os.path.isfile(fullpath) or ext not in image_exts:
                 continue
             tic = time.time()
-            frame = cv2.imread(os.path.abspath(file))
+            frame = cv2.imread(fullpath)
             canvas = estimator.process_all(frame)
             toc = time.time()
-            print ('processing time is %.5f' % (toc - tic))
+            print ('processing time is %.5fs' % (toc - tic))
             # saving
             output = os.path.join(fpath,'%s_processed%s'%(name,ext))
             cv2.imwrite(output, canvas)
     else:
-        fpath,fname = os.path.split(os.path.abspath(args.image))
+        fullpath = os.path.abspath(args.image)
+        fpath,fname = os.path.split(fullpath)
         name,ext = os.path.splitext(fname)
-        if not os.path.isfile(args.image) or ext not in image_exts:
+        if not os.path.isfile(fullpath) or ext not in image_exts:
             return
         tic = time.time()
-        frame = cv2.imread(os.path.abspath(args.image))
+        frame = cv2.imread(fullpath)
         canvas = estimator.process_all(frame)
         toc = time.time()
-        print ('processing time is %.5f' % (toc - tic))
+        print ('processing time is %.5fs' % (toc - tic))
         # saving
         output = os.path.join(fpath,'%s_processed%s'%(name,ext))
         cv2.imwrite(output, canvas)        
     
 if __name__ == "__main__":
-    test_estimator()
+    cmd_mode()
